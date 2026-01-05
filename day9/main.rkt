@@ -154,28 +154,28 @@
       point))
   (define-values (hors vers) (partition-lines (tiles->lines points)))
   (define size (vector-length points))
-  (for*/fold
-      ([max-area 0])
+  (define (area xy0  xy1)
+    (* (add1 (abs (- (car xy0) (car xy1)))) (add1 (abs (- (cdr xy0) (cdr xy1))))))
+  (define (points-okay? xy0 xy1)
+    (match-define (list left right down up) (points->borders xy0 xy1))
+    (and (fully-covered? (line->interval left) (left-ints left vers))
+         (fully-covered? (line->interval right) (right-ints right vers))
+         (fully-covered? (line->interval up) (down-ints up hors))
+         (fully-covered? (line->interval down) (down-ints down hors))))
+  (define all-pairs
+    (for*/vector
       ([i (in-range (sub1 size))]
        [j (in-range (add1 i) size)])
-
-    (match-define xy0 (vector-ref points i))
-    (match-define xy1 (vector-ref points j))
-
-    (match-define (list left right down up) (points->borders xy0 xy1))
-
-    (define lints (left-ints left vers))
-    (define rints (right-ints right vers))
-    (define dints (down-ints down hors))
-    (define uints (up-ints up hors))
-    (cond
-      [(and (fully-covered? (line->interval left) lints)
-            (fully-covered? (line->interval right) rints)
-            (fully-covered? (line->interval up) uints)
-            (fully-covered? (line->interval down) dints))
-       (max max-area (* (add1 (abs (- (car xy0) (car xy1)))) (add1 (abs (- (cdr xy0) (cdr xy1))))))]
-      [else
-       max-area])))
+      (match-define xy0 (vector-ref points i))
+      (match-define xy1 (vector-ref points j))
+      (cons (area xy0 xy1) (cons xy0 xy1))))
+  (vector-sort! all-pairs > #:key car)
+  (let/ec return
+    (for ([pair all-pairs])
+      (match-define (cons area (cons p0 p1)) pair)
+      (when (points-okay? p0 p1)
+        (return area)))
+    (return #f)))
 
 (module+ test
   (check-equal?
@@ -195,3 +195,5 @@
 
   (check-false
    (fully-covered? '(0 . 100) '((0 . 50) (50 . 60) (61 . 100)))))
+
+(provide main main-p2)
