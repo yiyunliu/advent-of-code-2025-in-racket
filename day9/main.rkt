@@ -160,7 +160,7 @@
     (match-define (list left right down up) (points->borders xy0 xy1))
     (and (fully-covered? (line->interval left) (left-ints left vers))
          (fully-covered? (line->interval right) (right-ints right vers))
-         (fully-covered? (line->interval up) (down-ints up hors))
+         (fully-covered? (line->interval up) (up-ints up hors))
          (fully-covered? (line->interval down) (down-ints down hors))))
   (define all-pairs
     (for*/vector
