@@ -26,6 +26,5 @@ def run(name):
             combs = itertools.product([0,1],repeat=K.nrows())
             sol = M.solve_right(b)
             sols = [sol + vector(Z2,comb) * K for comb in combs]
-            print(sols)
             total += min([sum(int(x) for x in sol) for sol in sols])
         return total
