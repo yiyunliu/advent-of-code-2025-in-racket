@@ -11,9 +11,6 @@ def parse_switch(dim, switch_str):
         result[int(num)] = Z2(1)
     return result
 
-def parse_jolt():
-    return
-
 def run(name):
     with open(name) as fh:
         total = 0
