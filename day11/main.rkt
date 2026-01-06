@@ -20,9 +20,23 @@
       (+ acc (hash-ref npaths tgt))))
   (hash-set! npaths src total))
 
+(define (npaths-between graph src tgt)
+  (define npaths (make-hash (list (cons 'out 0))))
+  (hash-set! npaths tgt 1)
+  (dfs graph src npaths)
+  (hash-ref npaths src))
 
 (define (main filename)
   (define graph (call-with-input-file filename parse-from-port))
-  (define npaths (make-hash '((out . 1))))
-  (dfs graph 'you npaths)
-  (hash-ref npaths 'you))
+  (npaths-between graph 'you 'out))
+
+(define (main-p2 filename)
+  (define graph (call-with-input-file filename parse-from-port))
+  (+ (* (npaths-between graph 'svr 'dac)
+        (npaths-between graph 'dac 'fft)
+        (npaths-between graph 'fft 'out))
+     (* (npaths-between graph 'svr 'fft)
+        (npaths-between graph 'fft 'dac)
+        (npaths-between graph 'dac 'out))))
+
+(provide main main-p2)
